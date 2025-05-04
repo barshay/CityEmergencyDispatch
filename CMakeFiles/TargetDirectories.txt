@@ -1,0 +1,7 @@
+C:/Users/shayb/OneDrive/Desktop/RTEmbedded/RT_Concepts/CityEmergencyDispatch/CMakeFiles/CityEmergencyDispatch.dir
+C:/Users/shayb/OneDrive/Desktop/RTEmbedded/RT_Concepts/CityEmergencyDispatch/CMakeFiles/edit_cache.dir
+C:/Users/shayb/OneDrive/Desktop/RTEmbedded/RT_Concepts/CityEmergencyDispatch/CMakeFiles/rebuild_cache.dir
+C:/Users/shayb/OneDrive/Desktop/RTEmbedded/RT_Concepts/CityEmergencyDispatch/cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir
+C:/Users/shayb/OneDrive/Desktop/RTEmbedded/RT_Concepts/CityEmergencyDispatch/cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir
+C:/Users/shayb/OneDrive/Desktop/RTEmbedded/RT_Concepts/CityEmergencyDispatch/cmake/stm32cubemx/CMakeFiles/edit_cache.dir
+C:/Users/shayb/OneDrive/Desktop/RTEmbedded/RT_Concepts/CityEmergencyDispatch/cmake/stm32cubemx/CMakeFiles/rebuild_cache.dir

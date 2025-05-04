@@ -1,0 +1,7 @@
+build/
+*.map
+*.elf
+*.o
+*.bin
+*.log
+*.bak
