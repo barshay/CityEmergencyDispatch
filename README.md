@@ -59,6 +59,42 @@ CityEmergencyDispatch/
    STM32_Programmer_CLI --connect port=swd --download build/Debug/CityEmergencyDispatch.elf -hardRst -rst --start
    ```
 
+## Project Configuration
+
+The project is configured using STM32CubeMX with the following setup:
+
+### Microcontroller
+
+- **Model**: STM32F756ZGTx
+- **Package**: LQFP144
+- **Clock Configuration**:
+  - System Clock: 72 MHz (PLLCLK)
+  - HSE: 8 MHz (External Oscillator)
+  - USB Clock: 48 MHz
+
+### Peripherals
+
+- **FreeRTOS**:
+  - CMSIS V2 interface enabled.
+- **Timers**:
+  - TIM1: Used as the time base for the system.
+  - TIM2: Configured with a prescaler of 7199 and a period of 99.
+- **Random Number Generator (RNG)**: Enabled.
+- **USART3**:
+  - Mode: Asynchronous.
+  - TX: PD8, RX: PD9.
+
+### Development Board
+
+- **Board**: NUCLEO-F756ZG
+
+### Toolchain
+
+- **Compiler**: GNU Arm Embedded Toolchain (GCC)
+- **Build System**: CMake with Ninja
+
+This configuration ensures optimal performance for real-time embedded applications.
+
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
