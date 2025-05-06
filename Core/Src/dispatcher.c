@@ -259,15 +259,15 @@ static void Dispatcher_Task(void *pvParameters)
                 continue;
             }
 
-            // Check primary department queue status (check for waiting messages)
-            primaryQueueMsgs = uxQueueMessagesWaiting(xPrimaryQueue);
-            LogDebug("Primary Dept [%s] Queue Check: %lu waiting.\r\n", primaryDeptName, primaryQueueMsgs);
+            // Check primary department queue status (check for available space)
+            UBaseType_t primaryQueueSpaces = uxQueueSpacesAvailable(xPrimaryQueue);
+            LogDebug("Primary Dept [%s] Queue Check: %lu spaces available.\r\n", primaryDeptName, primaryQueueSpaces);
 
             // Decide whether to send to primary or attempt redirect
-            if (primaryQueueMsgs == 0 || !attemptRedirect || xAlternativeQueue == NULL)
+            if (primaryQueueSpaces > 0 || !attemptRedirect || xAlternativeQueue == NULL)
             {
                 // Send to primary if:
-                // 1. Primary queue is empty, OR
+                // 1. Primary queue has space available, OR
                 // 2. Redirection is not allowed for this event type, OR
                 // 3. No alternative queue is defined.
                 LogDebug("Dispatching event %d to Primary [%s].\r\n", receivedEvent.eventCode, primaryDeptName);
@@ -279,25 +279,23 @@ static void Dispatcher_Task(void *pvParameters)
             }
             else
             {
-                // Primary queue has messages waiting AND redirection is allowed AND alternative exists
-                LogWarn("Primary Dept [%s] is busy (%lu waiting). Checking Alternative [%s]...\r\n",
-                        primaryDeptName, primaryQueueMsgs, alternativeDeptName);
+                // Primary queue is full AND redirection is allowed AND alternative exists
+                LogWarn("Primary Dept [%s] is full. Checking Alternative [%s]...\r\n", primaryDeptName, alternativeDeptName);
 
-                // Check alternative department queue status
-                alternativeQueueMsgs = uxQueueMessagesWaiting(xAlternativeQueue);
-                LogDebug("Alternative Dept [%s] Queue Check: %lu waiting.\r\n", alternativeDeptName, alternativeQueueMsgs);
+                // Check alternative department queue status (check for available space)
+                UBaseType_t alternativeQueueSpaces = uxQueueSpacesAvailable(xAlternativeQueue);
+                LogDebug("Alternative Dept [%s] Queue Check: %lu spaces available.\r\n", alternativeDeptName, alternativeQueueSpaces);
 
-                if (alternativeQueueMsgs == 0)
+                if (alternativeQueueSpaces > 0)
                 {
-                    // Alternative queue is empty, redirect the call
-                    LogInfo("Redirecting event %d from [%s] to Alternative [%s].\r\n",
-                            receivedEvent.eventCode, primaryDeptName, alternativeDeptName);
+                    // Alternative queue has space, redirect the call
+                    LogInfo("Redirecting event %d from [%s] to Alternative [%s].\r\n", receivedEvent.eventCode, primaryDeptName, alternativeDeptName);
 
                     xStatus = xQueueSend(xAlternativeQueue, &receivedEvent, xSendTicksToWait);
                     if (xStatus != pdPASS)
                     {
                         LogError("Failed to send event %d to Alternative Queue [%s] (Timeout?)\r\n", receivedEvent.eventCode, alternativeDeptName);
-                        // Fallback: Try sending to primary queue anyway if redirect fails?
+                        // Fallback: Try sending to primary queue anyway if redirect fails
                         LogWarn("Redirect failed, sending event %d back to Primary Queue [%s] to wait.\r\n", receivedEvent.eventCode, primaryDeptName);
                         xStatus = xQueueSend(xPrimaryQueue, &receivedEvent, xSendTicksToWait);
                         if (xStatus != pdPASS)
@@ -308,9 +306,8 @@ static void Dispatcher_Task(void *pvParameters)
                 }
                 else
                 {
-                    // Alternative queue also has messages waiting, send to original primary queue
-                    LogWarn("Alternative Dept [%s] also busy (%lu waiting). Sending event %d to Primary Queue [%s] to wait.\r\n",
-                            alternativeDeptName, alternativeQueueMsgs, receivedEvent.eventCode, primaryDeptName);
+                    // Alternative queue is full, send to original primary queue
+                    LogWarn("Alternative Dept [%s] is full. Sending event %d to Primary Queue [%s] to wait.\r\n", alternativeDeptName, receivedEvent.eventCode, primaryDeptName);
                     xStatus = xQueueSend(xPrimaryQueue, &receivedEvent, xSendTicksToWait);
                     if (xStatus != pdPASS)
                     {
